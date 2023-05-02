@@ -15,7 +15,11 @@
 # Versionen < 00.01. laufen auf M5Stick C Plus.
 # Sie sind reine Testversionen mit Print-Ausgaben.
 #
-# V.00.00.02:
+# V.00.00.003:
+# wird im Branch "websrv" bearbeitet.
+# Es wird ein Webserver installiert.
+#
+# V.00.00.002:
 # Diese Version befasst sich nur mit den Umweltdaten.
 # Diese werden ermittelt und angezeigt.
 # Temperatur mit 1 Nachkommastelle,
