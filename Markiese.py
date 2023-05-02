@@ -68,6 +68,8 @@ import network
 import MicroWebSrv.microWebSrv as mws
 from wlansecrets import SSID, PW
 
+import json
+
 
 
 
@@ -114,10 +116,25 @@ markiese_stop_time = 0
 # REL_ON = 1
 # REL_OFF = 0
 
-# Für Testbetrieb mit Testboard auskommentieren:
+# Für Testbetrie1b mit Testboard auskommentieren:
 REL_ON = 0
 REL_OFF = 1
 
+##########################################
+# Geräte Definitionen laden.
+##########################################
+  
+try:
+    f = open('dev_config.json','r')
+    dc = f.read()
+    f.close()
+    dev_config = json.loads(dc)
+    print(dev_config)
+except:
+#     write_log('dev_config.json konnte nicht geholt werden!')
+#     abbruch = True
+    print('dev_config.json nicht gefunden')
+    time.sleep(1)
 
 
 # Markiese anhalten - gibt Verfahrzeit in ticks_ms und Motorflag = 0 zurück
@@ -174,6 +191,8 @@ def markiese_kalibrieren():
 
 env2_0 = unit.get(unit.ENV2, unit.PORTA)
 
+
+
 ####################################
 # Wlan einrichten und verbinden:
 ####################################
@@ -181,10 +200,12 @@ env2_0 = unit.get(unit.ENV2, unit.PORTA)
 wlan = network.WLAN(network.STA_IF)
 wlan.active(True)
 
+wlan.ifconfig((dev_config['fixIP'], '255.255.255.0', '192.168.5.1', '192.168.5.1'))
 wlan.connect(SSID, PW)
 
 while not wlan.isconnected():
     time.sleep(1)
+    print('nc')
 else:
     lcd.setRotation(3)
     print(wlan.ifconfig()[0])
@@ -207,6 +228,10 @@ label_name.show()
 label_version.show()
 label_ipadress.show()
 
+# Webserver einrichten und starten
+
+srv = mws.MicroWebSrv()
+srv.Start(threaded=True)
 
 
 while True:
