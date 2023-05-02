@@ -15,9 +15,14 @@
 # Versionen < 00.01. laufen auf M5Stick C Plus.
 # Sie sind reine Testversionen mit Print-Ausgaben.
 #
+# V.00.00.004:
+# www eingerichtet und index.htm geschrieben.
+#
 # V.00.00.003:
 # wird im Branch "websrv" bearbeitet.
 # Es wird ein Webserver installiert.
+# Funktioniert grundsätzlich.
+# www und index.htm fehlen noch.
 #
 # V.00.00.002:
 # Diese Version befasst sich nur mit den Umweltdaten.
@@ -31,7 +36,7 @@
 # Testen wann ein Überlauf erfolgt und diesen verarbeiten.
 
 file = 'Markiese.py'
-version = '00.00.002'
+version = '00.00.004'
 date = '02.05.2023'
 author = 'Peter Stöck'
 
@@ -75,8 +80,10 @@ import json
 
 
 
-
+######################################
 # Relais Ansteuerung initialisieren
+######################################
+
 relais_1 = 22
 relais_2 = 19
 relais_3 = 25
@@ -84,7 +91,9 @@ pin0 = machine.Pin(relais_1, mode=machine.Pin.OUT, pull=0x00)
 pin1 = machine.Pin(relais_2, mode=machine.Pin.OUT, pull=0x00)
 pin2 = machine.Pin(relais_3, mode=machine.Pin.OUT, pull=0x00)
 
+##############################
 # Varialblen initialisieren
+##############################
 
 command = None
 its_weather_time = None
@@ -99,11 +108,6 @@ message = None
 markiese_stop_zeit = None
 aussen_temp = None
 
-
-
-
-# Varialblen initialisieren
-
 relais_delay = 30  # Verzögerung der Relaisachaltung in ms
 motor = True       # True = Motor ist eingeschaltet.
 markiese_fahrzeit = 30000  # Zeit zum Ein- / Ausfahren der Markiese
@@ -111,6 +115,10 @@ markiese_status = 0
 positions_schritt = markiese_fahrzeit / 100
 markiese_start_time = 0
 markiese_stop_time = 0
+
+##############################
+# Einstellungen für Testboard
+##############################
 
 # Für Produktiven Einsatz Entkommentieren: 
 # REL_ON = 1
@@ -129,13 +137,14 @@ try:
     dc = f.read()
     f.close()
     dev_config = json.loads(dc)
-    print(dev_config)
 except:
 #     write_log('dev_config.json konnte nicht geholt werden!')
 #     abbruch = True
-    print('dev_config.json nicht gefunden')
-    time.sleep(1)
+    print('Kein Wlan')
 
+######################################
+# Funktionen zum Steuern der Markiese
+######################################
 
 # Markiese anhalten - gibt Verfahrzeit in ticks_ms und Motorflag = 0 zurück
 def markiese_stop(start, motor):
@@ -186,8 +195,9 @@ def markiese_position(ziel, aktuell):
 def markiese_kalibrieren():
     pass
 
-
+################################
 # ENVII Modul anmelden
+################################
 
 env2_0 = unit.get(unit.ENV2, unit.PORTA)
 
@@ -205,14 +215,15 @@ wlan.connect(SSID, PW)
 
 while not wlan.isconnected():
     time.sleep(1)
-    print('nc')
 else:
     lcd.setRotation(3)
     print(wlan.ifconfig()[0])
 
 time.sleep(1)
 
+####################################
 # Grafische Oberfläche gestalten
+####################################
 
 label_name = M5TextBox(2, 0, file, lcd.FONT_DejaVu18, 0xFFFFFF, rotate=0)
 label_version = M5TextBox(2, 20, 'Version ' + version, lcd.FONT_DejaVu18, 0xFFFFFF, rotate=0)
@@ -228,11 +239,16 @@ label_name.show()
 label_version.show()
 label_ipadress.show()
 
+#####################################
 # Webserver einrichten und starten
+#####################################
 
 srv = mws.MicroWebSrv()
 srv.Start(threaded=True)
 
+########################################################
+# Ausgabeschleife nur zum Testen auf M5Stick C Plus
+########################################################
 
 while True:
     aussen_temp = env2_0.temperature
