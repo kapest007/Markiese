@@ -15,6 +15,11 @@
 # Versionen < 00.01. laufen auf M5Stick C Plus.
 # Sie sind reine Testversionen mit Print-Ausgaben.
 #
+# V.00.00.005:
+# Funktionen für den Webserver implementiert:
+# Wetterdaten werden auf Webseite ausgeben (IP/wetter).
+# Gerät wird neugestartet (IP/restart).
+#
 # V.00.00.004:
 # www eingerichtet und index.htm geschrieben.
 #
@@ -36,7 +41,7 @@
 # Testen wann ein Überlauf erfolgt und diesen verarbeiten.
 
 file = 'Markiese.py'
-version = '00.00.004'
+version = '00.00.005'
 date = '02.05.2023'
 author = 'Peter Stöck'
 
@@ -242,6 +247,55 @@ label_ipadress.show()
 #####################################
 # Webserver einrichten und starten
 #####################################
+
+#--------------------------------------------------------------------
+@mws.MicroWebSrv.route('/wetter')
+def _httpHandlerTestGet(httpClient, httpResponse):
+    global label2, label3 # ist erforderlich
+    content = """\
+    <!DOCTYPE html>
+    <html lang=de>
+        <head>
+            <meta charset="UTF-8" />
+            <title>Test-Testseite</title>
+        </head>
+        <body>
+            <h1>Wetterdaten vom Balkon</h1>
+            <h2>Temperatur: {}</h2>
+            <h2>Luftdruck: {}</h2>
+            <h2>Luftfeuchte: {}</h2>
+        </body>
+    </html>
+    """ .format(aussen_temp, aussen_druck, aussen_feuchte)
+    httpResponse.WriteResponseOk( headers = None,
+                                  contentType = "text/html",
+                                  contentCharset = "UTF-8",
+                                  content = content)
+
+#--------------------------------------------------------------------
+@mws.MicroWebSrv.route('/restart')
+def _httpHandlerTestGet(httpClient, httpResponse):
+    global label2, label3 # ist erforderlich
+    content = """\
+    <!DOCTYPE html>
+    <html lang=de>
+        <head>
+            <meta charset="UTF-8" />
+            <title>Restart</title>
+        </head>
+        <body>
+            <h1>Gerät wird neu gestartet</h1>
+        </body>
+    </html>
+    """
+    httpResponse.WriteResponseOk( headers = None,
+                                  contentType = "text/html",
+                                  contentCharset = "UTF-8",
+                                  content = content)
+    time.sleep(1)
+    machine.reset()
+    
+#--------------------------------------------------------------------    
 
 srv = mws.MicroWebSrv()
 srv.Start(threaded=True)
