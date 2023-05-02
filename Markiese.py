@@ -1,14 +1,33 @@
+# Markiese.py
+#
+# Dient zur Steuerung der Markiese und
+# erfasst die Umweltdaten auf dem Balkon.
+#
 
+# Versionen:
+#
+# Versionen >= 00.01. laufen auf M5ATOM Lite.
+# Sie haben einen Webserver über den mit Ihm
+# kommuniziert werden kann.
+#
+#
+#
+# Versionen < 00.01. laufen auf M5Stick C Plus.
+# Sie sind reine Testversionen mit Print-Ausgaben.
+#
+# V.00.00.02:
+# Diese Version befasst sich nur mit den Umweltdaten.
+# Diese werden ermittelt und angezeigt.
+# Temperatur mit 1 Nachkommastelle,
+# Druck und Feuchte ohne Nachkommastelle.
 
-# MODUL_NAME = 'markiese_steuerung.py'
-# MODUL_VERSION = '0.0.1'
 
 # Timer zur Positionsbestimmung muss eingefuehrt werden.
 # Mit  utime.ticks_ms() realisieren.
 # Testen wann ein Überlauf erfolgt und diesen verarbeiten.
 
 file = 'Markiese.py'
-version = '00.00.001'
+version = '00.00.002'
 date = '02.05.2023'
 author = 'Peter Stöck'
 
@@ -146,6 +165,9 @@ def markiese_position(ziel, aktuell):
 def markiese_kalibrieren():
     pass
 
+
+# ENVII Modul anmelden
+
 env2_0 = unit.get(unit.ENV2, unit.PORTA)
 
 ####################################
@@ -168,8 +190,10 @@ time.sleep(1)
 # Grafische Oberfläche gestalten
 
 label_name = M5TextBox(2, 0, file, lcd.FONT_DejaVu18, 0xFFFFFF, rotate=0)
-label_version = M5TextBox(2, 40, 'Version ' + version, lcd.FONT_DejaVu18, 0xFFFFFF, rotate=0)
-label_ipadress = M5TextBox(2, 60, 'IP ' + wlan.ifconfig()[0], lcd.FONT_DejaVu18, 0xFFFFFF, rotate=0)
+label_version = M5TextBox(2, 20, 'Version ' + version, lcd.FONT_DejaVu18, 0xFFFFFF, rotate=0)
+label_ipadress = M5TextBox(2, 40, 'IP ' + wlan.ifconfig()[0], lcd.FONT_DejaVu18, 0xFFFFFF, rotate=0)
+label_druck = M5TextBox(2, 60, ' ' + wlan.ifconfig()[0], lcd.FONT_DejaVu18, 0xFFFFFF, rotate=0)
+label_feuchte = M5TextBox(130, 60, ' ' + wlan.ifconfig()[0], lcd.FONT_DejaVu18, 0xFFFFFF, rotate=0)
 label_aussen_temperatur = M5TextBox(40, 90, "label0", lcd.FONT_DejaVu40, 0xFFFFFF, rotate=0)
 
 lcd.setRotation(3)
@@ -183,8 +207,14 @@ label_ipadress.show()
 
 while True:
     aussen_temp = env2_0.temperature
-    label_aussen_temperatur.setText(str(aussen_temp))
+    aussen_druck = env2_0.pressure
+    aussen_feuchte = env2_0.humidity
+    label_aussen_temperatur.setText("%.1f"%float((aussen_temp)))
+    label_druck.setText("%.0f"%float((aussen_druck)))
+    label_feuchte.setText("%.0f"%float((aussen_feuchte)))
     label_aussen_temperatur.show()
+    label_druck.show()
+    label_feuchte.show()
     time.sleep(1)
 
 
