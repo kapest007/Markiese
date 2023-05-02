@@ -7,11 +7,46 @@
 # Mit  utime.ticks_ms() realisieren.
 # Testen wann ein Überlauf erfolgt und diesen verarbeiten.
 
+file = 'Markiese.py'
+version = '00.00.001'
+date = '02.05.2023'
+author = 'Peter Stöck'
 
+'''
+Befehle:
+Mar_Ein   - Markiese einfahren
+Mar_Aus  - Markiese ausfahren
+Mar_Stop - Markiese Stop
+Mar_Ver   - Softwareversion
+Mar_Dbg  - Debug-Modue einstellen
+Mar_Std   - Standard-Modus einstellen
+Mar_Res  - System neu starten
+'''
+'''
+Daten für das ATOM HUB AC/DC
+Remote Control Switch Kit
+Relais_1 = 22
+Relais_2 = 19
+RX          = 33
+TX           = 23
+SDA        = 25
+SCL        = 21
+'''
 
-
+from m5stack import *
+from m5ui import *
+from uiflow import *
 import machine
+import time
+import unit
 import utime
+
+import network
+import MicroWebSrv.microWebSrv as mws
+from wlansecrets import SSID, PW
+
+
+
 
 
 
@@ -24,22 +59,25 @@ pin0 = machine.Pin(relais_1, mode=machine.Pin.OUT, pull=0x00)
 pin1 = machine.Pin(relais_2, mode=machine.Pin.OUT, pull=0x00)
 pin2 = machine.Pin(relais_3, mode=machine.Pin.OUT, pull=0x00)
 
-# Prüfen ob Testumgebung oder Produktivumgebung
-try:
-    from markiese_main_test import DEBUG, SIM_MODE
-#    print("Produktivumgebung")
-except:
-    from markiese_main import DEBUG, SIM_MODE
-#    print("Testumgebung")
+# Varialblen initialisieren
 
-# Für debug 9 -> Hardwaresimulation
-from markiese_main import DEBUG
-if DEBUG & SIM_MODE > 0:
-    REL_ON = 0
-    REL_OFF = 1
-else:
-    REL_ON = 1
-    REL_OFF = 0
+command = None
+its_weather_time = None
+lfd_nr = None
+command_received = None
+wetter = None
+lfd_nr_max = None
+wetter_takt = None
+makiese_aktiv = None
+status = None
+message = None
+markiese_stop_zeit = None
+aussen_temp = None
+
+
+
+
+# Varialblen initialisieren
 
 relais_delay = 30  # Verzögerung der Relaisachaltung in ms
 motor = True       # True = Motor ist eingeschaltet.
@@ -48,6 +86,14 @@ markiese_status = 0
 positions_schritt = markiese_fahrzeit / 100
 markiese_start_time = 0
 markiese_stop_time = 0
+
+# Für Produktiven Einsatz Entkommentieren: 
+# REL_ON = 1
+# REL_OFF = 0
+
+# Für Testbetrieb mit Testboard auskommentieren:
+REL_ON = 0
+REL_OFF = 1
 
 
 
@@ -99,4 +145,46 @@ def markiese_position(ziel, aktuell):
 # Markiesen Aus- und Einfahrzeiten ermitteln
 def markiese_kalibrieren():
     pass
+
+env2_0 = unit.get(unit.ENV2, unit.PORTA)
+
+####################################
+# Wlan einrichten und verbinden:
+####################################
+
+wlan = network.WLAN(network.STA_IF)
+wlan.active(True)
+
+wlan.connect(SSID, PW)
+
+while not wlan.isconnected():
+    time.sleep(1)
+else:
+    lcd.setRotation(3)
+    print(wlan.ifconfig()[0])
+
+time.sleep(1)
+
+# Grafische Oberfläche gestalten
+
+label_name = M5TextBox(2, 0, file, lcd.FONT_DejaVu18, 0xFFFFFF, rotate=0)
+label_version = M5TextBox(2, 40, 'Version ' + version, lcd.FONT_DejaVu18, 0xFFFFFF, rotate=0)
+label_ipadress = M5TextBox(2, 60, 'IP ' + wlan.ifconfig()[0], lcd.FONT_DejaVu18, 0xFFFFFF, rotate=0)
+label_aussen_temperatur = M5TextBox(40, 90, "label0", lcd.FONT_DejaVu40, 0xFFFFFF, rotate=0)
+
+lcd.setRotation(3)
+setScreenColor(0x111111)
+lcd.clear()
+label_name.show()
+label_version.show()
+label_ipadress.show()
+
+
+
+while True:
+    aussen_temp = env2_0.temperature
+    label_aussen_temperatur.setText(str(aussen_temp))
+    label_aussen_temperatur.show()
+    time.sleep(1)
+
 
