@@ -221,7 +221,6 @@ wlan.connect(SSID, PW)
 while not wlan.isconnected():
     time.sleep(1)
 else:
-    lcd.setRotation(3)
     print(wlan.ifconfig()[0])
 
 time.sleep(1)
