@@ -55,17 +55,9 @@ def _httpHandlerTestGet(httpClient, httpResponse) :
             <h1>TEST GET</h1>
             Client IP address = %s
             <br />
-			<form action="/test1" method="post" accept-charset="ISO-8859-1">
+			<form action="/test" method="post" accept-charset="ISO-8859-1">
 				First name: <input type="text" name="firstname"><br />
 				Last name: <input type="text" name="lastname"><br />
-				Dateiname: <input type="text" name="filename"><br />
-                <label for="filedata">Dateiinhalt: </label>
-                <textarea id="fileedata"
-                          name="filedata"
-                          cols="30"       
-                          rows="5"></textarea>
-                <input type="range" name="volume" min="0" max="100">
-                <label for="volume">Volume</label>
 				<input type="submit" value="Submit">
 			</form>
         </body>
@@ -77,13 +69,11 @@ def _httpHandlerTestGet(httpClient, httpResponse) :
 								  content 		 = content )
 
 
-@mws.MicroWebSrv.route('/test1', 'POST')
+@mws.MicroWebSrv.route('/test', 'POST')
 def _httpHandlerTestPost(httpClient, httpResponse) :
 	formData  = httpClient.ReadRequestPostedFormData()
 	firstname = formData["firstname"]
 	lastname  = formData["lastname"]
-	dateiname = formData["filename"]
-    ausfahrt = formData["volume"]
 	content   = """\
 	<!DOCTYPE html>
 	<html lang=en>
@@ -95,9 +85,6 @@ def _httpHandlerTestPost(httpClient, httpResponse) :
             <h1>TEST POST</h1>
             Firstname = %s<br />
             Lastname = %s<br />
-            Dateiname = %s<br />
-            Ausfahren = %s<br />
-
         </body>
     </html>
 	""" % ( mws.MicroWebSrv.HTMLEscape(firstname),
