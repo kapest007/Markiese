@@ -37,7 +37,11 @@ else:
 
 time.sleep(1)
 
+index_text = "<h1>Hier ist {}.</h1>".format(wlan.ifconfig()[0])
 
+f = open('./www/index.htm', 'w')
+f.write(index_text)
+f.close()
 
 
 # ----------------------------------------------------------------------------
@@ -98,6 +102,7 @@ def _httpHandlerTestPost(httpClient, httpResponse) :
 @mws.MicroWebSrv.route('/edit/<index>')             # <IP>/edit/123           ->   args['index']=123
 @mws.MicroWebSrv.route('/edit/<index>/abc/<foo>')   # <IP>/edit/123/abc/bar   ->   args['index']=123  args['foo']='bar'
 @mws.MicroWebSrv.route('/edit')                     # <IP>/edit               ->   args={}
+@mws.MicroWebSrv.route('/edit/<index>/<abc>/<foo>')
 def _httpHandlerEditWithArgs(httpClient, httpResponse, args={}) :
 	content = """\
 	<!DOCTYPE html>
@@ -113,6 +118,9 @@ def _httpHandlerEditWithArgs(httpClient, httpResponse, args={}) :
 	
 	if 'index' in args :
 		content += "<p>index = {}</p>".format(args['index'])
+		
+	if 'abc' in args :
+		content += "<p>abc = {}</p>".format(args['abc'])
 	
 	if 'foo' in args :
 		content += "<p>foo = {}</p>".format(args['foo'])
@@ -157,7 +165,7 @@ label_data = M5TextBox(2, 60, firstname, lcd.FONT_DejaVu18, 0xFFFFFF, rotate=0)
 # label_feuchte = M5TextBox(130, 60, ' ' + wlan.ifconfig()[0], lcd.FONT_DejaVu18, 0xFFFFFF, rotate=0)
 # label_aussen_temperatur = M5TextBox(40, 90, "label0", lcd.FONT_DejaVu40, 0xFFFFFF, rotate=0)
 
-lcd.setRotation(1)
+lcd.setRotation(3)
 setScreenColor(0x111111)
 lcd.clear()
 label_name.show()

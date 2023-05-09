@@ -51,7 +51,7 @@ Mar_Ein   - Markiese einfahren
 Mar_Aus  - Markiese ausfahren
 Mar_Stop - Markiese Stop
 Mar_Ver   - Softwareversion
-Mar_Dbg  - Debug-Modue einstellen
+Mar_Dbg  - Debug-Modus einstellen
 Mar_Std   - Standard-Modus einstellen
 Mar_Res  - System neu starten
 '''
@@ -222,6 +222,12 @@ while not wlan.isconnected():
     time.sleep(1)
 else:
     print(wlan.ifconfig()[0])
+
+# Index-Seite erstellen
+
+f = open('./www/index.htm', 'w')
+f.write(index_text)
+f.close()
 
 time.sleep(1)
 
