@@ -10,10 +10,16 @@
 # Sie haben einen Webserver über den mit Ihm
 # kommuniziert werden kann.
 #
-#
-#
+
 # Versionen < 00.01. laufen auf M5Stick C Plus.
 # Sie sind reine Testversionen mit Print-Ausgaben.
+#
+# V 00.00.007: TP/m0 wurde implementiert. Temeraturanzeige ist rot
+# wenn die Markiese in Bewegung ist, sonst grün.
+# Der timer_markiese wude eingeführt.
+#
+# V.00.00.006:
+# Markiesen Funktionen überarbeitet.
 #
 # V.00.00.005:
 # Funktionen für den Webserver implementiert:
@@ -41,7 +47,7 @@
 # Testen wann ein Überlauf erfolgt und diesen verarbeiten.
 
 file = 'Markiese.py'
-version = '00.00.005'
+version = '00.00.007'
 date = '14.05.2023'
 author = 'Peter Stöck'
 
@@ -138,6 +144,12 @@ markiese_stop_time = 0
 REL_ON = 0
 REL_OFF = 1
 
+
+
+markiese_steht = 0x00FF00
+markiese_bewegt = 0xFF0000
+markiesen_farbe = markiese_steht
+
 ##########################################
 # Geräte Definitionen laden.
 ##########################################
@@ -181,32 +193,46 @@ time.sleep(1)
 # Funktionen zum Steuern der Markiese
 ######################################
 
-# Markiese anhalten - gibt Verfahrzeit in ticks_ms und Motorflag = 0 zurück
-def markiese_stop(start, motor):
-    global pin0, pin1, pin2, REL_OFF, RELAIS_VERZ
+'''
+Prinzip der Markiesensteuerung:
+Wenn die Markiese in Bewegung gesetzt wird, wird der timer_markiese gestartet.
+Wenn der Timer abgelaufen ist wird die Markiese gestoppt.
+Die Laufzeit des Timers bestimmt wie weit die Markiese aus- oder eingefahren wird.
+
+
+'''
+
+@timerSch.event('timer_markiese')
+def ttimer_markiese():
+  # global params
+  markiese_stop()
+
+# Markiese anhalten
+def markiese_stop():
+    global pin0, pin1, pin2, REL_OFF, relais_delay, markiesen_farbe, markiese_steht
     pin2.value(REL_OFF)
-    utime.sleep_ms(RELAIS_VERZ)
+    utime.sleep_ms(relais_delay)
     pin0.value(REL_OFF)
     pin1.value(REL_OFF)
-    stop = utime.ticks_ms()
-    return utime.ticks_diff(start, stop) * motor, 0  
+    markiesen_farbe = markiese_steht
 
-# Markiese ausfahren - gibt Startzeit in ticks_ms und Motorflag = 1 zurück
+# Markiese ausfahren - 
 def markiese_ausfahren():
-    global pin0, pin1, pin2, REL_ON, RELAIS_VERZ
+    global pin0, pin1, pin2, REL_ON, relais_delay, markiesen_farbe, markiese_bewegt
     pin0.value(REL_ON)
-    utime.sleep_ms(RELAIS_VERZ)
+    utime.sleep_ms(relais_delay)
     pin2.value(REL_ON)
-    return utime.ticks_ms(), 1
+    markiesen_farbe = markiese_bewegt
   
   
-# Markiese einfahren - gibt Startzeit in ticks_ms und Motorflag = -1 zurück
+# Markiese einfahren - 
 def markiese_einfahren():
-    global pin0, pin1, pin2, REL_ON, RELAIS_VERZ
+    global pin0, pin1, pin2, REL_ON, relais_delay, markiesen_farbe, markiese_bewegt
     pin1.value(REL_ON)
-    utime.sleep_ms(RELAIS_VERZ)
+    utime.sleep_ms(relais_delay)
     pin2.value(REL_ON)
-    return utime.ticks_ms(), -1
+    markiesen_farbe = markiese_bewegt
+    
 
 # Markiese auf Position fahren
 # - Eingabe in % markiese_status
@@ -248,7 +274,7 @@ label_version = M5TextBox(2, 20, 'Version ' + version, lcd.FONT_DejaVu18, 0xFFFF
 label_ipadress = M5TextBox(2, 40, 'IP ' + wlan.ifconfig()[0], lcd.FONT_DejaVu18, 0xFFFFFF, rotate=0)
 label_druck = M5TextBox(2, 60, ' ' + wlan.ifconfig()[0], lcd.FONT_DejaVu18, 0xFFFFFF, rotate=0)
 label_feuchte = M5TextBox(130, 60, ' ' + wlan.ifconfig()[0], lcd.FONT_DejaVu18, 0xFFFFFF, rotate=0)
-label_aussen_temperatur = M5TextBox(40, 90, "label0", lcd.FONT_DejaVu40, 0xFFFFFF, rotate=0)
+label_aussen_temperatur = M5TextBox(40, 90, "label0", lcd.FONT_DejaVu40, markiesen_farbe, rotate=0)
 
 lcd.setRotation(3)
 setScreenColor(0x111111)
@@ -304,6 +330,19 @@ except:
 del(index_text)
 gc.collect()
 
+
+
+#--------------------------------------------------------------------
+@mws.MicroWebSrv.route('/m0')
+def _httpHandler_markiese_einfahren(httpClient, httpResponse):
+    global label2, label3 # ist erforderlich
+    markiese_einfahren()
+    timerSch.run('timer_markiese', markiese_fahrzeit, 0x01)
+    httpResponse.WriteResponseOk( headers = None,
+                                  contentType = "text/html",
+                                  contentCharset = "UTF-8",
+                                  content = "Markiese wird eingefahren")    
+    
 
 #--------------------------------------------------------------------
 @mws.MicroWebSrv.route('/wetter')
@@ -368,6 +407,7 @@ while True:
     label_aussen_temperatur.setText("%.1f"%float((aussen_temp)))
     label_druck.setText("%.0f"%float((aussen_druck)))
     label_feuchte.setText("%.0f"%float((aussen_feuchte)))
+    label_aussen_temperatur.setColor(markiesen_farbe)
     label_aussen_temperatur.show()
     label_druck.show()
     label_feuchte.show()
