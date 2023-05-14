@@ -42,18 +42,20 @@
 
 file = 'Markiese.py'
 version = '00.00.005'
-date = '02.05.2023'
+date = '14.05.2023'
 author = 'Peter Stöck'
 
 '''
 Befehle:
-Mar_Ein   - Markiese einfahren
-Mar_Aus  - Markiese ausfahren
-Mar_Stop - Markiese Stop
-Mar_Ver   - Softwareversion
-Mar_Dbg  - Debug-Modus einstellen
-Mar_Std   - Standard-Modus einstellen
-Mar_Res  - System neu starten
+IP/   - Sys Meldung und Anleitung
+IP/M0  - Markiese ganz einfahren
+IP/M1 - Markiese ganz ausfahren
+IP/M/0...100   - Markiese auf Position fahren
+IP/M  - Markiese und Wetterseite abrufen
+IP/set/x - Wert einstellen
+IP/cal/<Messwert>/<Wert>  - Messwerte Kalibrieren
+IP/man/<Mode> - Webseite zum Manipulieren des Systems aufrufen
+IP/restart - Gerät neu starten
 '''
 '''
 Daten für das ATOM HUB AC/DC
@@ -121,6 +123,8 @@ positions_schritt = markiese_fahrzeit / 100
 markiese_start_time = 0
 markiese_stop_time = 0
 
+
+
 ##############################
 # Einstellungen für Testboard
 ##############################
@@ -145,7 +149,32 @@ try:
 except:
 #     write_log('dev_config.json konnte nicht geholt werden!')
 #     abbruch = True
-    print('Kein Wlan')
+    print('Kann dev_config.json nicht öffnen.')
+    
+    
+####################################
+# Wlan einrichten und verbinden:
+####################################
+
+wlan = network.WLAN(network.STA_IF)
+wlan.active(True)
+
+wlan.ifconfig((dev_config['fixIP'], '255.255.255.0', '192.168.5.1', '192.168.5.1'))
+wlan.connect(SSID, PW)
+
+while not wlan.isconnected():
+    time.sleep(1)
+else:
+    print(wlan.ifconfig()[0])
+
+
+
+time.sleep(1)
+
+
+
+
+
 
 ######################################
 # Funktionen zum Steuern der Markiese
@@ -208,28 +237,6 @@ env2_0 = unit.get(unit.ENV2, unit.PORTA)
 
 
 
-####################################
-# Wlan einrichten und verbinden:
-####################################
-
-wlan = network.WLAN(network.STA_IF)
-wlan.active(True)
-
-wlan.ifconfig((dev_config['fixIP'], '255.255.255.0', '192.168.5.1', '192.168.5.1'))
-wlan.connect(SSID, PW)
-
-while not wlan.isconnected():
-    time.sleep(1)
-else:
-    print(wlan.ifconfig()[0])
-
-# Index-Seite erstellen
-
-f = open('./www/index.htm', 'w')
-f.write(index_text)
-f.close()
-
-time.sleep(1)
 
 ####################################
 # Grafische Oberfläche gestalten
@@ -252,6 +259,50 @@ label_ipadress.show()
 #####################################
 # Webserver einrichten und starten
 #####################################
+
+#################################
+# Text der Index-Seite erstellen
+#################################
+index_text =  '''
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Markiese</title>
+    </head>
+    <body>
+        <h1>Markiese Info</h1>        
+        <h3>Softwareversion: {}
+            </br>
+            IP-Adresse: {}</h3>
+        </br>
+        <h2>Benutzung:</h2>
+            IP/   - Sys Meldung und Anleitung</br>
+            IP/m0  - Markiese ganz einfahren</br>
+            IP/m1 - Markiese ganz ausfahren</br>
+            IP/m/0...100   - Markiese auf Position fahren</br>
+            IP/m  - Markiese und Wetterseite abrufen</br>
+            IP/set/x - Wert einstellen</br>
+            IP/cal/<Messwert>/<Wert>  - Messwerte Kalibrieren</br>
+            IP/man/<Mode> - Webseite zum Manipulieren des Systems aufrufen</br>
+            IP/restart - Gerät neu starten</br>
+            IP/wetter - Seite mit den Wetterdaten abrufen
+    </body>
+</html>
+
+'''.format(version, wlan.ifconfig()[0])
+
+# Index-Seite erstellen
+try:
+    f = open('./www/index.htm', 'w')
+    f.write(index_text)
+    f.close()
+except:
+    print('Kann index.htm nicht speichern.')
+
+del(index_text)
+gc.collect()
+
 
 #--------------------------------------------------------------------
 @mws.MicroWebSrv.route('/wetter')
