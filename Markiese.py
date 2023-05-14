@@ -48,14 +48,15 @@ author = 'Peter Stöck'
 '''
 Befehle:
 IP/   - Sys Meldung und Anleitung
-IP/M0  - Markiese ganz einfahren
-IP/M1 - Markiese ganz ausfahren
-IP/M/0...100   - Markiese auf Position fahren
-IP/M  - Markiese und Wetterseite abrufen
+IP/m0  - Markiese ganz einfahren
+IP/m1 - Markiese ganz ausfahren
+IP/m/0...100   - Markiese auf Position fahren
+IP/m  - Markiese und Wetterseite abrufen
 IP/set/x - Wert einstellen
 IP/cal/<Messwert>/<Wert>  - Messwerte Kalibrieren
 IP/man/<Mode> - Webseite zum Manipulieren des Systems aufrufen
 IP/restart - Gerät neu starten
+IP/wetter - Seite mit den Wetterdaten aufrufen
 '''
 '''
 Daten für das ATOM HUB AC/DC
