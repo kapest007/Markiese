@@ -342,7 +342,17 @@ def _httpHandler_markiese_einfahren(httpClient, httpResponse):
                                   contentType = "text/html",
                                   contentCharset = "UTF-8",
                                   content = "Markiese wird eingefahren")    
-    
+
+#--------------------------------------------------------------------
+@mws.MicroWebSrv.route('/m1')
+def _httpHandler_markiese_ausfahren(httpClient, httpResponse):
+    global label2, label3 # ist erforderlich
+    markiese_ausfahren()
+    timerSch.run('timer_markiese', markiese_fahrzeit, 0x01)
+    httpResponse.WriteResponseOk( headers = None,
+                                  contentType = "text/html",
+                                  contentCharset = "UTF-8",
+                                  content = "Markiese wird ausgefahren")    
 
 #--------------------------------------------------------------------
 @mws.MicroWebSrv.route('/wetter')
