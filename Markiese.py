@@ -14,6 +14,13 @@
 # Versionen < 00.01. laufen auf M5Stick C Plus.
 # Sie sind reine Testversionen mit Print-Ausgaben.
 #
+#
+# V 00.00.009:
+# markiese_position() wird implementiert.
+#
+# V 00.00.008:
+# /m1 wurde implementiert.
+#
 # V 00.00.007: TP/m0 wurde implementiert. Temeraturanzeige ist rot
 # wenn die Markiese in Bewegung ist, sonst grün.
 # Der timer_markiese wude eingeführt.
@@ -47,7 +54,7 @@
 # Testen wann ein Überlauf erfolgt und diesen verarbeiten.
 
 file = 'Markiese.py'
-version = '00.00.007'
+version = '00.00.009'
 date = '14.05.2023'
 author = 'Peter Stöck'
 
@@ -198,6 +205,8 @@ Prinzip der Markiesensteuerung:
 Wenn die Markiese in Bewegung gesetzt wird, wird der timer_markiese gestartet.
 Wenn der Timer abgelaufen ist wird die Markiese gestoppt.
 Die Laufzeit des Timers bestimmt wie weit die Markiese aus- oder eingefahren wird.
+Die Verantwortung für den Timer liegt bei den steuernden Programm
+nicht bei den Funktionen die die Relais steuern!
 
 
 '''
@@ -237,19 +246,15 @@ def markiese_einfahren():
 # Markiese auf Position fahren
 # - Eingabe in % markiese_status
 # - Ausgabe in % markiese_status
-def markiese_position(ziel, aktuell):
-    weg = ziel - aktuell
+def markiese_position(ziel):
+    global markiese_status, markiese_fahrzeit
+    weg = ziel - markiese_status
     if weg < 1:
-        richtung = 0
-    else:
-        richtung = 1
-    dauer = abs(weg) * positions_schritt
-    if richtung == 0:
-        start_time, motor = markiese_einfahren()
-    else:
-        start_time, motor = markiese_ausfahren()
-    utime.sleep_ms(dauer)
-    weg_zeit, motor = markiese_stop(start_time, motor)
+        markiese_einfahren()
+        timerSch.run('timer_markiese', abs(weg)*markiese_fahrzeit/100, 0x01)
+    elif weg > 0:
+        markiese_ausfahren()
+        timerSch.run('timer_markiese', weg*markiese_fahrzeit/100, 0x01)
     return ziel
 
 # Markiesen Aus- und Einfahrzeiten ermitteln
@@ -335,9 +340,10 @@ gc.collect()
 #--------------------------------------------------------------------
 @mws.MicroWebSrv.route('/m0')
 def _httpHandler_markiese_einfahren(httpClient, httpResponse):
-    global label2, label3 # ist erforderlich
+    global label2, label3, markiese_status # ist erforderlich
     markiese_einfahren()
     timerSch.run('timer_markiese', markiese_fahrzeit, 0x01)
+    markiese_status = 0
     httpResponse.WriteResponseOk( headers = None,
                                   contentType = "text/html",
                                   contentCharset = "UTF-8",
@@ -346,13 +352,26 @@ def _httpHandler_markiese_einfahren(httpClient, httpResponse):
 #--------------------------------------------------------------------
 @mws.MicroWebSrv.route('/m1')
 def _httpHandler_markiese_ausfahren(httpClient, httpResponse):
-    global label2, label3 # ist erforderlich
+    global label2, label3, markiese_status # ist erforderlich
     markiese_ausfahren()
     timerSch.run('timer_markiese', markiese_fahrzeit, 0x01)
+    markiese_status = 100
     httpResponse.WriteResponseOk( headers = None,
                                   contentType = "text/html",
                                   contentCharset = "UTF-8",
                                   content = "Markiese wird ausgefahren")    
+
+#--------------------------------------------------------------------
+@mws.MicroWebSrv.route('/m/<weite>')
+def _httpHandlerTestGet(httpClient, httpResponse, args={}):
+    global label2, label3, markiese_status # ist erforderlich
+    markiese_status = markiese_position(args['weite'])
+    print(args['weite'])
+    httpResponse.WriteResponseOk( headers = None,
+                                  contentType = "text/html",
+                                  contentCharset = "UTF-8",
+                                  content = "Markiese wird auf {}% gefahren.".format(markiese_status)
+                                  )
 
 #--------------------------------------------------------------------
 @mws.MicroWebSrv.route('/wetter')
