@@ -14,9 +14,12 @@
 # Versionen < 00.01. laufen auf M5Stick C Plus.
 # Sie sind reine Testversionen mit Print-Ausgaben.
 #
+# V 00.00.010:
+# noch nicht implementierte Befehle wurden
+# auf der Indexseite durchgestrichen.
 #
 # V 00.00.009:
-# markiese_position() wird implementiert.
+# markiese_position() wurde implementiert.
 #
 # V 00.00.008:
 # /m1 wurde implementiert.
@@ -54,7 +57,7 @@
 # Testen wann ein Überlauf erfolgt und diesen verarbeiten.
 
 file = 'Markiese.py'
-version = '00.00.009'
+version = '00.00.010'
 date = '14.05.2023'
 author = 'Peter Stöck'
 
@@ -313,10 +316,10 @@ index_text =  '''
             IP/m0  - Markiese ganz einfahren</br>
             IP/m1 - Markiese ganz ausfahren</br>
             IP/m/0...100   - Markiese auf Position fahren</br>
-            IP/m  - Markiese und Wetterseite abrufen</br>
-            IP/set/x - Wert einstellen</br>
-            IP/cal/<Messwert>/<Wert>  - Messwerte Kalibrieren</br>
-            IP/man/<Mode> - Webseite zum Manipulieren des Systems aufrufen</br>
+            <s>IP/m  - Markiese und Wetterseite abrufen</s></br>
+            <s>IP/set/x - Wert einstellen</s></br>
+            <s>IP/cal/<Messwert>/<Wert>  - Messwerte Kalibrieren</s></br>
+            <s>IP/man/<Mode> - Webseite zum Manipulieren des Systems aufrufen</s></br>
             IP/restart - Gerät neu starten</br>
             IP/wetter - Seite mit den Wetterdaten abrufen
     </body>
