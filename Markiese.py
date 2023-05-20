@@ -179,10 +179,11 @@ except:
 # Wlan einrichten und verbinden:
 ####################################
 
+# if not wlan.isconnected():
 wlan = network.WLAN(network.STA_IF)
 wlan.active(True)
 
-wlan.ifconfig((dev_config['fixIP'], '255.255.255.0', '192.168.5.1', '192.168.5.1'))
+wlan.ifconfig((dev_config[0]['fixIP'], '255.255.255.0', '192.168.5.1', '192.168.5.1'))
 wlan.connect(SSID, PW)
 
 while not wlan.isconnected():
