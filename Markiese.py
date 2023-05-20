@@ -180,18 +180,20 @@ except:
 ####################################
 
 # if not wlan.isconnected():
-wlan = network.WLAN(network.STA_IF)
-wlan.active(True)
+if not wlan.isconnected():
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
 
-wlan.ifconfig((dev_config[0]['fixIP'], '255.255.255.0', '192.168.5.1', '192.168.5.1'))
-wlan.connect(SSID, PW)
+    wlan.ifconfig((dev_config[0]['fixIP'], '255.255.255.0', '192.168.5.1', '192.168.5.1'))
+    wlan.connect(SSID, PW)
 
-while not wlan.isconnected():
-    time.sleep(1)
-else:
-    print(wlan.ifconfig()[0])
+    while not wlan.isconnected():
+        time.sleep(1)
+    else:
+        print(wlan.ifconfig()[0])
 
 
+    
 
 time.sleep(1)
 
