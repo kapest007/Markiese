@@ -14,6 +14,10 @@
 # Versionen < 00.01. laufen auf M5Stick C Plus.
 # Sie sind reine Testversionen mit Print-Ausgaben.
 #
+# V 00.00.011:
+# IP/log - log anzeigen
+# IP/logdel - log.txt löschen
+#
 # V 00.00.010:
 # noch nicht implementierte Befehle wurden
 # auf der Indexseite durchgestrichen.
@@ -57,7 +61,7 @@
 # Testen wann ein Überlauf erfolgt und diesen verarbeiten.
 
 file = 'Markiese.py'
-version = '00.00.010'
+version = '00.00.011'
 date = '14.05.2023'
 author = 'Peter Stöck'
 
@@ -73,6 +77,8 @@ IP/cal/<Messwert>/<Wert>  - Messwerte Kalibrieren
 IP/man/<Mode> - Webseite zum Manipulieren des Systems aufrufen
 IP/restart - Gerät neu starten
 IP/wetter - Seite mit den Wetterdaten aufrufen
+IP/log - Logeinträge anzeigen
+IP/logdel - log.txt löschen
 '''
 '''
 Daten für das ATOM HUB AC/DC
@@ -425,7 +431,35 @@ def _httpHandlerTestGet(httpClient, httpResponse):
                                   content = content)
     time.sleep(1)
     machine.reset()
-    
+
+
+#--------------------------------------------------------------------
+@mws.MicroWebSrv.route('/log')
+def _httpHandlerTestGet(httpClient, httpResponse):
+    global label2, label3 # ist erforderlich
+    try:
+        f = open('log.txt', 'r')
+        content = f.read()
+        f.close()
+    except:
+        v = "Log-Datei konnte nicht gelesen werden!"
+    httpResponse.WriteResponseOk( headers = None,
+                                  contentType = "text/html",
+                                  contentCharset = "UTF-8",
+                                  content = content)
+
+@mws.MicroWebSrv.route('/logdel')
+def _httpHandlerTestGet(httpClient, httpResponse):
+    global label2, label3 # ist erforderlich
+    try:
+        os.remove(log.txt)
+        content = "log.txt wurde gelöscht"
+    except:
+        content = "Log-Datei konnte nicht gelöscht werden!"    
+    httpResponse.WriteResponseOk( headers = None,
+                                  contentType = "text/html",
+                                  contentCharset = "UTF-8",
+                                  content = content)
 #--------------------------------------------------------------------    
 
 srv = mws.MicroWebSrv()
