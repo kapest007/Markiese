@@ -14,6 +14,10 @@
 # Versionen < 00.01. laufen auf M5Stick C Plus.
 # Sie sind reine Testversionen mit Print-Ausgaben.
 #
+# V 00.00.016:
+# Test ob dev_config existiert und Laderoutine
+# für dev_config.json angepasst.
+#
 # V 00.00.015:
 # Fehlerkorrektur
 #
@@ -73,7 +77,7 @@
 # Testen wann ein Überlauf erfolgt und diesen verarbeiten.
 
 file = 'Markiese.py'
-version = '00.00.015'
+version = '00.00.016'
 date = '21.05.2023'
 author = 'Peter Stöck'
 
@@ -181,16 +185,18 @@ markiesen_farbe = markiese_steht
 ##########################################
 # Geräte Definitionen laden.
 ##########################################
-  
-try:
-    f = open('dev_config.json','r')
-    dc = f.read()
-    f.close()
-    dev_config = json.loads(dc)
-except:
-#     write_log('dev_config.json konnte nicht geholt werden!')
-#     abbruch = True
-    print('Kann dev_config.json nicht öffnen.')
+
+if 'dev_config' not in vars():
+    try:
+        f = open('dev_config.json','r')
+        dc = f.read()
+        f.close()
+        dc = json.loads(dc)
+        dev_config = dc[0]
+    except:
+    #     write_log('dev_config.json konnte nicht geholt werden!')
+    #     abbruch = True
+        print('Kann dev_config.json nicht öffnen.')
     
     
 ####################################
