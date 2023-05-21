@@ -14,6 +14,9 @@
 # Versionen < 00.01. laufen auf M5Stick C Plus.
 # Sie sind reine Testversionen mit Print-Ausgaben.
 #
+# V 00.00.012
+# IP/info - Systeminformationen anzeigen
+#
 # V 00.00.011:
 # IP/log - log anzeigen
 # IP/logdel - log.txt löschen
@@ -61,8 +64,8 @@
 # Testen wann ein Überlauf erfolgt und diesen verarbeiten.
 
 file = 'Markiese.py'
-version = '00.00.011'
-date = '14.05.2023'
+version = '00.00.012'
+date = '21.05.2023'
 author = 'Peter Stöck'
 
 '''
@@ -331,6 +334,9 @@ index_text =  '''
             <s>IP/man/<Mode> - Webseite zum Manipulieren des Systems aufrufen</s></br>
             IP/restart - Gerät neu starten</br>
             IP/wetter - Seite mit den Wetterdaten abrufen
+            IP/log - Logeinträge anzeigen
+            IP/logdel - log.txt löschen
+            IP/info - Systeminformationen anzeigen
     </body>
 </html>
 
@@ -448,6 +454,7 @@ def _httpHandlerTestGet(httpClient, httpResponse):
                                   contentCharset = "UTF-8",
                                   content = content)
 
+#--------------------------------------------------------------------   
 @mws.MicroWebSrv.route('/logdel')
 def _httpHandlerTestGet(httpClient, httpResponse):
     global label2, label3 # ist erforderlich
@@ -460,6 +467,31 @@ def _httpHandlerTestGet(httpClient, httpResponse):
                                   contentType = "text/html",
                                   contentCharset = "UTF-8",
                                   content = content)
+    
+#--------------------------------------------------------------------   
+@mws.MicroWebSrv.route('/info')
+def _httpHandlerTestGet(httpClient, httpResponse):
+    global label2, label3 # ist erforderlich
+    content = """\
+    <!DOCTYPE html>
+    <html lang=de>
+        <head>
+            <meta charset="UTF-8" />
+            <title>Info</title>
+        </head>
+        <body>
+            <h1>Informationen zu {}</h1></br>
+            <h2>ota.py : {}</br>
+            Markiese.py : {}</h2></br>
+        </body>
+    </html>
+    """.format(dev_config[dev_name], current_versions['ota.py'] current_versions['Markiese.py'] )
+    httpResponse.WriteResponseOk( headers = None,
+                                  contentType = "text/html",
+                                  contentCharset = "UTF-8",
+                                  content = content)
+    
+    
 #--------------------------------------------------------------------    
 
 srv = mws.MicroWebSrv()
