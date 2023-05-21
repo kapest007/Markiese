@@ -14,6 +14,9 @@
 # Versionen < 00.01. laufen auf M5Stick C Plus.
 # Sie sind reine Testversionen mit Print-Ausgaben.
 #
+# V 00.00.015:
+# Fehlerkorrektur
+#
 # V 00.00.014:
 # Fehlerkorrektur
 #
@@ -70,7 +73,7 @@
 # Testen wann ein Überlauf erfolgt und diesen verarbeiten.
 
 file = 'Markiese.py'
-version = '00.00.014'
+version = '00.00.015'
 date = '21.05.2023'
 author = 'Peter Stöck'
 
@@ -487,8 +490,8 @@ def _httpHandlerTestGet(httpClient, httpResponse):
         </head>
         <body>
             <h1>Informationen zu {}</h1></br>
-            <h2>ota.py : {}</br>
-            Markiese.py : {}</h2></br>
+            <h2>ota.py : {}</h2></br>
+            <h2>Markiese.py : {}</h2></br>
         </body>
     </html>
     """.format(dev_config['dev_name'], current_versions['ota.py'], current_versions['Markiese.py'])
