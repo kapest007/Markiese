@@ -14,6 +14,9 @@
 # Versionen < 00.01. laufen auf M5Stick C Plus.
 # Sie sind reine Testversionen mit Print-Ausgaben.
 #
+# V 00.00.018:
+# kleine Fehler beseitigt.
+#
 # V 00.00.017:
 # V 00.00.016 Funktioniert nicht. vars() gibts nicht!
 # Rückgängig gemacht.
@@ -83,7 +86,7 @@
 # Testen wann ein Überlauf erfolgt und diesen verarbeiten.
 
 file = 'Markiese.py'
-version = '00.00.017'
+version = '00.00.018'
 date = '21.05.2023'
 author = 'Peter Stöck'
 
@@ -354,10 +357,10 @@ index_text =  '''
             <s>IP/cal/<Messwert>/<Wert>  - Messwerte Kalibrieren</s></br>
             <s>IP/man/<Mode> - Webseite zum Manipulieren des Systems aufrufen</s></br>
             IP/restart - Gerät neu starten</br>
-            IP/wetter - Seite mit den Wetterdaten abrufen
-            IP/log - Logeinträge anzeigen
-            IP/logdel - log.txt löschen
-            IP/info - Systeminformationen anzeigen
+            IP/wetter - Seite mit den Wetterdaten abrufen</br>
+            IP/log - Logeinträge anzeigen</br>
+            IP/logdel - log.txt löschen</br>
+            IP/info - Systeminformationen anzeigen</br>
     </body>
 </html>
 
